@@ -1,5 +1,6 @@
 import { GetStaticProps } from 'next';
 import Image from 'next/image';
+import Link from 'next/link';
 import { format, parseISO } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
 import { api } from '../services/api';
@@ -40,7 +41,9 @@ export default function Home( { latestEpisodes, allEpisodes } : HomeProps) {
 									/>
 
 									<div className={styles.episodeDetails}>
-										<a href="">{ep.title}</a>
+										<Link href={`episodes/${ep.id}`}>
+											<a>{ep.title}</a>
+										</Link>
 										<p>{ep.members}</p>
 										<span>{ep.publishedAt}</span>
 										<span>{ep.durationAsString}</span>
@@ -59,12 +62,14 @@ export default function Home( { latestEpisodes, allEpisodes } : HomeProps) {
 
 						<table cellSpacing={0}>
 							<thead>
-								<th></th>
-								<th>Podcast</th>
-								<th>integrantes</th>
-								<th>Data</th>
-								<th>Duração</th>
-								<th></th>
+								<tr>
+									<th></th>
+									<th>Podcast</th>
+									<th>integrantes</th>
+									<th>Data</th>
+									<th>Duração</th>
+									<th></th>
+								</tr>
 							</thead>
 							<tbody>
 								{allEpisodes.map(ep => {
@@ -80,7 +85,9 @@ export default function Home( { latestEpisodes, allEpisodes } : HomeProps) {
 												/>
 											</td>
 											<td>
-												<a href="">{ep.title}</a>
+												<Link href={`episodes/${ep.id}`}>
+													<a>{ep.title}</a>
+												</Link>
 											</td>
 											<td>{ep.members}</td>
 											<td style={{ width: 100 }} >{ep.publishedAt}</td>
@@ -118,7 +125,6 @@ export const getStaticProps: GetStaticProps = async () => {
 			publishedAt: format(parseISO(ep.published_at), 'd MMM yy', { locale: ptBR }),
 			duration: Number(ep.file.duration),
 			durationAsString: convertDurationToTimeString(Number(ep.file.duration)),
-			description: ep.description,
 			url: ep.file.url
 		}
 	});
