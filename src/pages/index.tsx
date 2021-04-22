@@ -7,6 +7,8 @@ import { api } from '../services/api';
 import convertDurationToTimeString from '../components/Utils/convertDurationToTimeString';
 
 import styles from './home.module.scss';
+import { useContext } from 'react';
+import { PlayerContext } from '../contexts/PlayerContext';
 
 type Episode = {
 	id: string,
@@ -25,9 +27,12 @@ type HomeProps = {
 }
 
 export default function Home( { latestEpisodes, allEpisodes } : HomeProps) {
+	const { play } = useContext(PlayerContext);
+	
 	return (
 			<div className={styles.homepage} >
 				<section className={styles.latestEpisodes} >
+					<h2>Últimos lançamentos</h2>
 					<ul>
 						{latestEpisodes.map(ep => {
 							return(
@@ -38,7 +43,7 @@ export default function Home( { latestEpisodes, allEpisodes } : HomeProps) {
 										src={ep.thumbnail} 
 										alt={ep.title}
 										objectFit="cover" 
-									/>
+										/>
 
 									<div className={styles.episodeDetails}>
 										<Link href={`episodes/${ep.id}`}>
@@ -48,7 +53,7 @@ export default function Home( { latestEpisodes, allEpisodes } : HomeProps) {
 										<span>{ep.publishedAt}</span>
 										<span>{ep.durationAsString}</span>
 									</div>
-									<button type="button">
+									<button type="button" onClick={() => play(ep)}>
 											<img src="/play-green.svg" alt="Tocar episódio"/>
 									</button>
 								</li>
@@ -93,7 +98,7 @@ export default function Home( { latestEpisodes, allEpisodes } : HomeProps) {
 											<td style={{ width: 100 }} >{ep.publishedAt}</td>
 											<td>{ep.durationAsString}</td>
 											<td>
-												<button type="button">
+												<button type="button" onClick={() => play(ep)}>
 													<img src="/play-green.svg" alt="Tocar episódio"/>
 												</button>
 											</td>
