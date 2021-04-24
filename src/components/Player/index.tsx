@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Head  from 'next/head';
 import { useRef, useEffect, useState } from 'react';
 import { usePlayer } from '../../contexts/PlayerContext';
 import styles from './style.module.scss';
@@ -24,6 +25,7 @@ export default function Player(){
         setPlayingState,
         playNext,
         playPrevious,
+        clearPlayerState,
         hasNext,
         hasPrevious, 
     } = usePlayer();
@@ -53,10 +55,21 @@ export default function Player(){
         setProgress(amount);
     }
 
+    function handleEpisodeEnded(){
+        if(hasNext){
+            playNext();
+        }else{
+            clearPlayerState();
+        }
+    }
+
     const episode = episodeList[currentEpisodeIndex];
 
     return (
         <div className={styles.playerContainer}>
+            <Head>
+                <title>Home | Podcastr</title>
+            </Head>
             <header>
                 <img src="/playing.svg" alt="Tocando agora" />
                 <div style={{display: 'flex' ,flexDirection: 'column'}}>
@@ -106,6 +119,7 @@ export default function Player(){
                         ref={audioRef}
                         loop={isLooping}
                         autoPlay
+                        onEnded={handleEpisodeEnded}
                         onPlay={() => setPlayingState(true)}
                         onPause={() => setPlayingState(false)}
                         onLoadedMetadata={() => setupProgressListener()} 
