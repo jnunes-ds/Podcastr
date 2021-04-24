@@ -1,14 +1,16 @@
 import Image from 'next/image';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { usePlayer } from '../../contexts/PlayerContext';
 import styles from './style.module.scss';
 import Slider from 'rc-slider';
 
 import 'rc-slider/assets/index.css';
+import convertDurationToTimeString from '../Utils/convertDurationToTimeString';
 
 export default function Player(){
 
     const audioRef = useRef<HTMLAudioElement>(null);
+    const [progress, setProgress] = useState(0);
 
     const { 
         episodeList, 
@@ -38,7 +40,13 @@ export default function Player(){
         }
     },[isPlaying]);
 
+    function setupProgressListener(){
+        audioRef.current.currentTime = 0;
 
+        audioRef.current.addEventListener('timeupdate', event => {
+            setProgress(Math.floor(audioRef.current.currentTime));
+        });
+    }
 
     const episode = episodeList[currentEpisodeIndex];
 
@@ -69,10 +77,12 @@ export default function Player(){
 
             <footer className={!episode ? styles.empty : ''} >
                 <div className={styles.progress} >
-                    <span>00:00</span>
+                    <span> { convertDurationToTimeString(progress) } </span>
                     <div className={styles.slider}>
                         { episode ? (
-                            <Slider 
+                            <Slider
+                                max={episode.duration}
+                                value={progress} 
                                 trackStyle={{ backgroundColor: '#04D361' }}
                                 railStyle={{ backgroundColor:'9F75ff' }}
                                 handleStyle={{ borderColor: '9F75FF', borderWidth: 4     }}
@@ -81,7 +91,7 @@ export default function Player(){
                             <div className={styles.emptySlider}></div>
                         ) }
                     </div>
-                    <span>00:00</span>
+                    <span>{ convertDurationToTimeString(episode?.duration ?? 0) }</span>
                 </div>
 
                 { episode && (
@@ -91,14 +101,15 @@ export default function Player(){
                         loop={isLooping}
                         autoPlay
                         onPlay={() => setPlayingState(true)}
-                        onPause={() => setPlayingState(false)} 
+                        onPause={() => setPlayingState(false)}
+                        onLoadedMetadata={() => setupProgressListener()} 
                     />
                 ) }
 
                 <div className={styles.buttons}>
                     <button 
                         type="button" 
-                        disabled={!episode}
+                        disabled={!episode || episodeList.length === 1}
                         onClick={toggleShuffle}
                         className={isShuffling ? styles.isActive : ''}
                     >
